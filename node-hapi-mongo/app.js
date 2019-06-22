@@ -2,10 +2,18 @@ const Hapi = require("@hapi/hapi");
 const mongoose = require("mongoose");
 const Person = require('./datamodels/Person')
 const {performance} = require('perf_hooks');
-const connectionString = 'mongodb+srv://Marius2m:parola@haufe-y2a8i.mongodb.net/test?retryWrites=true&w=majority'
-mongoose.connect(
-  connectionString
-);
+mongoose
+    .connect(
+        'mongodb://mongo:27017/node-hapi-mongo', 
+        {useNewUrlParser: true}
+    )
+    .then(val => {console.log("Worked! = ", val);})
+    .catch(err => console.log("Failed mongoose connection", err));
+
+// const connectionString = 'mongodb+srv://Marius2m:parola@haufe-y2a8i.mongodb.net/test?retryWrites=true&w=majority'
+// mongoose.connect(
+//   connectionString
+// );
 
 const init = async () => {
 
@@ -29,13 +37,37 @@ const init = async () => {
       }
     });
 
+    server.route({
+      method: 'GET',
+      path: '/all',
+      handler: (request, h) => {
+        return Person.find({})
+          .exec()
+          .then(doc => {
+            return h
+              .response({
+                allPersons: doc
+              })
+              .code(200);
+          })
+          .catch(err => {
+            return new Promise((resolve, reject) => {
+              const res = {
+                error: err,
+              }
+              resolve(h.response(res).code(404))
+            });
+          });
+      }
+    });
+
     // 1ST ENDPOINT
     server.route({
       method: 'GET',
       path: '/mongoStatus',
       handler: (request, h) => {
         const mongooseState = mongoose.STATES[mongoose.connection.readyState];
-        return { "mongo status" : mongooseState };
+        return { "mongo-status2" : mongooseState };
       }
     });
 
@@ -66,22 +98,18 @@ const init = async () => {
       method: 'GET',
       path: '/{user}',
       handler: (request, h) => {
-        performance.mark('start');
         const startTime = performance.now();
         const userId = request.params.user;
+
         return Person.findById(userId)
           .exec()
           .then(doc => {
-            performance.mark('end');
-            performance.measure('response time', 'start', 'end');
-            const measure = performance.getEntries('response time')[0];
             const endTime = performance.now();
 
             if (doc) {
               return h
                 .response({
                   user: doc,
-                  completionTime: measure.duration / 1000,
                   time: (endTime - startTime) / 1000
                 })
                 .code(200);
@@ -90,25 +118,19 @@ const init = async () => {
               .response(
                 {
                   message: `No user found for id ${userId}`,
-                  completionTime: measure.duration
+                  time: (endTime - startTime) / 1000
                 }
               )
               .code(204);
           })
           .catch(err => {
-            performance.mark('end');
-            performance.measure('response time', 'start', 'end');
-            const measure = performance.getEntries('response time')[0];
             const endTime = performance.now();
-
             return new Promise((resolve, reject) => {
               const res = {
                 error: err,
-                completionTime: measure.duration / 1000,
                 time: (endTime - startTime) / 1000
               }
               resolve(h.response(res).code(404))
-              
             });
           });
       }
