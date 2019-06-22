@@ -1,5 +1,6 @@
 const Hapi = require("@hapi/hapi");
 const mongoose = require("mongoose");
+const Person = require('./datamodels/Person')
 const connectionString = 'mongodb+srv://Marius2m:parola@haufe-y2a8i.mongodb.net/test?retryWrites=true&w=majority'
 mongoose.connect(
   connectionString
@@ -35,6 +36,28 @@ const init = async () => {
         const mongooseState = mongoose.STATES[mongoose.connection.readyState];
         return { "mongo status" : mongooseState };
       }
+    });
+
+    // 2ND ENDPOINT
+    server.route({
+        method: 'POST',
+        path: '/signup',
+        handler: function (request, h) {
+          const person = new Person({
+            _id: new mongoose.Types.ObjectId(),
+            name: request.payload.name,
+            age: request.payload.age,
+          })
+          person.save()
+            .then(result => {
+              console.log(result);
+            })
+            .catch(err => console.log(err));
+
+            return h.response(person).code(201);
+            // const payload = request.payload;
+            // return `Welcome ${encodeURIComponent(payload.username)}!`;
+        }
     });
 
     await server.start();
