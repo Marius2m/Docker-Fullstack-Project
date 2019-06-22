@@ -1,6 +1,7 @@
 const Hapi = require("@hapi/hapi");
 const mongoose = require("mongoose");
 const Person = require('./datamodels/Person')
+const {performance} = require('perf_hooks');
 const connectionString = 'mongodb+srv://Marius2m:parola@haufe-y2a8i.mongodb.net/test?retryWrites=true&w=majority'
 mongoose.connect(
   connectionString
@@ -59,6 +60,59 @@ const init = async () => {
             // return `Welcome ${encodeURIComponent(payload.username)}!`;
         }
     });
+
+    // 3RD ENDPOINT ?
+    server.route({
+      method: 'GET',
+      path: '/{user}',
+      handler: (request, h) => {
+        performance.mark('start');
+        const startTime = performance.now();
+        const userId = request.params.user;
+        return Person.findById(userId)
+          .exec()
+          .then(doc => {
+            performance.mark('end');
+            performance.measure('response time', 'start', 'end');
+            const measure = performance.getEntries('response time')[0];
+            const endTime = performance.now();
+
+            if (doc) {
+              return h
+                .response({
+                  user: doc,
+                  completionTime: measure.duration / 1000,
+                  time: (endTime - startTime) / 1000
+                })
+                .code(200);
+            }
+            return h
+              .response(
+                {
+                  message: `No user found for id ${userId}`,
+                  completionTime: measure.duration
+                }
+              )
+              .code(204);
+          })
+          .catch(err => {
+            performance.mark('end');
+            performance.measure('response time', 'start', 'end');
+            const measure = performance.getEntries('response time')[0];
+            const endTime = performance.now();
+
+            return new Promise((resolve, reject) => {
+              const res = {
+                error: err,
+                completionTime: measure.duration / 1000,
+                time: (endTime - startTime) / 1000
+              }
+              resolve(h.response(res).code(404))
+              
+            });
+          });
+      }
+    })
 
     await server.start();
     console.log('Server running on %s', server.info.uri);
