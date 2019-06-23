@@ -30,7 +30,10 @@ connect();
 const init = async () => {
 
     const server = Hapi.server({
-        port: 3000
+        port: 3000,
+        routes: {
+          cors: true
+      }
     });
 
     server.route({
@@ -49,16 +52,22 @@ const init = async () => {
       }
     });
 
+    // 3RD ENDPOINT
     server.route({
       method: 'GET',
-      path: '/all',
+      path: '/getAggregationTime',
       handler: (request, h) => {
+        const startTime = performance.now();
+
         return Person.find({})
           .exec()
           .then(doc => {
+            const endTime = performance.now();
+
             return h
               .response({
-                allPersons: doc
+                allPersons: doc,
+                time: (endTime - startTime) / 1000
               })
               .code(200);
           })
@@ -99,9 +108,7 @@ const init = async () => {
             })
             .catch(err => console.log(err));
 
-            return h.response(person).code(201);
-            // const payload = request.payload;
-            // return `Welcome ${encodeURIComponent(payload.username)}!`;
+          return h.response(person).code(201);
         }
     });
 
