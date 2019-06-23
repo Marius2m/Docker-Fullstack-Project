@@ -2,13 +2,25 @@ const Hapi = require("@hapi/hapi");
 const mongoose = require("mongoose");
 const Person = require('./datamodels/Person')
 const {performance} = require('perf_hooks');
-mongoose
-    .connect(
-        'mongodb://mongo:27017/node-hapi-mongo', 
-        {useNewUrlParser: true}
-    )
+
+const mongoURI = 'mongodb://mongo:27017/node-hapi-mongo';
+function connect() {
+  mongoose
+    .connect(mongoURI, {
+      socketOptions: { autoReconnect: true },
+      reconnectInterval: 5000,
+    })
     .then(val => {console.log("Worked! = ", val);})
     .catch(err => console.log("Failed mongoose connection", err));
+}
+connect();
+// mongoose
+//     .connect(
+//         'mongodb://mongo:27017/node-hapi-mongo', 
+//         {useNewUrlParser: true}
+//     )
+//     .then(val => {console.log("Worked! = ", val);})
+//     .catch(err => console.log("Failed mongoose connection", err));
 
 // const connectionString = 'mongodb+srv://Marius2m:parola@haufe-y2a8i.mongodb.net/test?retryWrites=true&w=majority'
 // mongoose.connect(
