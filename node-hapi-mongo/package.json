@@ -4,7 +4,7 @@
   "description": "Node Hapi App",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon --legacy-watch app.js"
   },
   "author": "",
   "license": "ISC",

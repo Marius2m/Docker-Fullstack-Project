@@ -4,7 +4,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install \
+    && apt update \
+    && apt install -y vim nmap
 
 # RUN echo "nameserver 8.8.8.8">/etc/resolv.conf
 
