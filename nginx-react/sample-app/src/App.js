@@ -3,36 +3,38 @@ import Navigation from './components/Navigation';
 import CreateData from './components/CreateData';
 import FetchData from './components/FetchData';
 import {BrowserRouter, Route} from 'react-router-dom';
+import {getMongoStatus} from './apis/getMongoStatus';
+import {useSelector, useDispatch} from 'react-redux';
+import {auth} from './redux/actions/actions';
 import './App.css';
 
 const App = () => {
   const [userData, setUserData] = useState({canLogin: false, username: '', password: ''})
-  
-  const handleUsernameChange = event => {
-    setUserData({username: event.target.value});
-    return;
-  }
+  const authState = useSelector(state => state.auth);
+  const dispatch = useDispatch();
 
-  const handlePasswordChange = event => {
-    setUserData({password: event.target.value});
-    return;
-  }
-
-  const authenticate = (event) => {
+  const authenticate = async (event) => {
+    console.log("isAuth: ", authState.isAuthenticated);
     if (userData.username.toLocaleLowerCase() === "test" && 
       userData.password.toLocaleLowerCase() === "test") {
+        let data = await getMongoStatus();
+        
         console.log("BEFORE: ", userData);
-        setUserData({canLogin: true});
+        if (data.status === 200) {
+          dispatch(auth());
+        } else {
+          event.preventDefault();
+        }
         console.log("AFTER: ", userData);
     } else {
       alert('Entered data:' + userData.username + ' ' + userData.password + '\n'
         + 'User: test | Password: test');
-      event.preventDefault();
+        event.preventDefault();
     }
   }
 
   return (
-    userData.canLogin === true
+    authState.isAuthenticated === true
     ? <BrowserRouter>
       <div className="App">
         <Navigation/>
