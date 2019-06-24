@@ -87,8 +87,17 @@ const init = async () => {
       method: 'GET',
       path: '/mongoStatus',
       handler: (request, h) => {
-        const mongooseState = mongoose.STATES[mongoose.connection.readyState];
-        return { "mongo-status2" : mongooseState };
+        const mongooseStateCode = Number(mongoose.connection.readyState);
+        
+        if (mongooseStateCode === 1) {
+          const mongooseState = mongoose.STATES[mongooseStateCode];
+          return h
+            .response({
+              "mongo-status": mongooseState
+            })
+            .code(200);
+        }
+        return h.response().code(503);
       }
     });
 
