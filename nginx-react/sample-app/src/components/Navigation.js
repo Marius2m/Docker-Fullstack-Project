@@ -20,7 +20,7 @@ function Navigation() {
             <Link style={{'color': 'white','textDecoration': 'none'}} to='/fetchdata'>
                 <li style={{marginRight: 20}}>FetchData</li>
             </Link>
-            <li onClick={onSignOut} style={{marginLeft: 40, color: '#c32d2d'}}>Sign Out</li>
+            <li onClick={onSignOut} style={{marginLeft: 40, color: '#c32d2d', cursor: 'pointer'}}>Sign Out</li>
         </ul>
       </nav>
     );

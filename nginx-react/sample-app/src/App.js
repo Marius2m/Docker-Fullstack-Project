@@ -6,9 +6,13 @@ import {BrowserRouter, Route} from 'react-router-dom';
 import {getMongoStatus} from './apis/getMongoStatus';
 import {useSelector, useDispatch} from 'react-redux';
 import {auth} from './redux/actions/actions';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+
 import './App.css';
 
 const App = () => {
+  const classes = useStyles();
   const [userData, setUserData] = useState({canLogin: false, username: '', password: ''})
   const authState = useSelector(state => state.auth);
   const dispatch = useDispatch();
@@ -21,7 +25,7 @@ const App = () => {
         if (response.status === 200) {
           console.log(response.data["mongo-status"]);
           dispatch(auth());
-        } else {          
+        } else {        
           alert('Database is not online!');
         }
     } else {
@@ -40,36 +44,37 @@ const App = () => {
         <Route path="/fetchdata" component={FetchData}/>
       </div>
     </BrowserRouter>
-    : <form className="form" onSubmit={authenticate}>
-        <label style={{margin: '10px'}}>
-          Username:
-          <input 
+    : <div className="container">
+        <form className="formStyle" onSubmit={authenticate}>
+          <TextField
+            id="outlined-with-placeholder"
+            label="Username"
             placeholder="Username"
-            className="form_input" 
-            type="text" 
-            name="name" 
+            className={classes.textField}
+            margin="normal"
+            variant="outlined"
             value={userData.username || ''} 
             onChange={e => setUserData({...userData, username: e.target.value})}
-            />
-        </label>
-        <label style={{margin: '10px'}}>
-          Password:
-          <input 
+          />
+          <TextField
+            id="outlined-with-placeholder"
+            label="Password"
+            type="password"
             placeholder="Password"
-            className="form_input" 
-            type="password" 
-            name="name"
+            className={classes.textField}
+            margin="normal"
+            variant="outlined"
             value={userData.password || ''} 
             onChange={e => setUserData({...userData, password: e.target.value})}
             />
-        </label>
-        <button  
-          className="btn" 
-          type="button"
-          onClick={authenticate}>
-          Authenticate
-        </button>
-      </form>
+          <button  
+            className="btn" 
+            type="button"
+            onClick={authenticate}>
+            Authenticate
+          </button>
+        </form>
+      </div>
   );
 }
 
@@ -81,5 +86,16 @@ const Home = () => {
     </div>
   )
 };
+
+const useStyles = makeStyles(theme => ({
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+}));
 
 export default App;

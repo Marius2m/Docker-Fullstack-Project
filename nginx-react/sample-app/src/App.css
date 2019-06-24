@@ -19,25 +19,22 @@ nav{
   list-style: none;
 }
 
-.form {
+.container{
+  justify-items: center;
+}
+
+.formStyle {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 
-  width: 35%;
+  width: 300px;
   padding: 10px;
   border-radius: 6px;
   border-style: solid;
   border-width: 1px;
   border-color: #31477f;
-}
-
-.form_input {
-  width: 100%;
-  font-size: 26px;
-  border: 0;
-  outline: 0;
-  border-bottom: solid 1px #f2f2f2;
 }
 
 .btn {
