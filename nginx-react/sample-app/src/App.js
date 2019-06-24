@@ -14,22 +14,19 @@ const App = () => {
   const dispatch = useDispatch();
 
   const authenticate = async (event) => {
-    console.log("isAuth: ", authState.isAuthenticated);
     if (userData.username.toLocaleLowerCase() === "test" && 
       userData.password.toLocaleLowerCase() === "test") {
-        let data = await getMongoStatus();
-        
-        console.log("BEFORE: ", userData);
-        if (data.status === 200) {
+        let response = await getMongoStatus();
+
+        if (response.status === 200) {
+          console.log(response.data["mongo-status"]);
           dispatch(auth());
-        } else {
-          event.preventDefault();
+        } else {          
+          alert('Database is not online!');
         }
-        console.log("AFTER: ", userData);
     } else {
       alert('Entered data:' + userData.username + ' ' + userData.password + '\n'
         + 'User: test | Password: test');
-        event.preventDefault();
     }
   }
 
@@ -66,8 +63,12 @@ const App = () => {
             onChange={e => setUserData({...userData, password: e.target.value})}
             />
         </label>
-
-        <input className="btn" type="submit" value="Authenticate" />
+        <button  
+          className="btn" 
+          type="button"
+          onClick={authenticate}>
+          Authenticate
+        </button>
       </form>
   );
 }

@@ -6,13 +6,14 @@ export const getMongoStatus = async () => {
         if (response) {
             return {
                 status: response.status,
-                data: response,
+                data: response.data,
             }
         }
     } catch (err) {
         return {
             err: err,
             data: [],
+            status: err.response.status
         }
     }
 }
